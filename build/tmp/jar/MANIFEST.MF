@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Implementation-Title: GradlePictureOverlay
+Implementation-Version: 1.0
+Created-By: Sunjian
+Main-Class: com.maqiao.was.pictureOverlay
+
