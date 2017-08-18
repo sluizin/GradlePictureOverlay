@@ -1,6 +1,6 @@
 #GradlePictureOverlay
 * 从html中 的form通过不同的input 得到不同的图层叠加，生成一张图片
-<code>
+<code><pre>
 <!-- 外链图片图层 -->
 <mqpo:Basic group="a100" useid="false" valid="true" issave="true" iscache="false" isBG="false" x="10" y="20" width="144" height="144" color="#00ffcc" bgcolor="#000000" >  
 <mqpo:Pict shape="0" autoscale="false" intercept="true" isurl="true" url="http://img1.gtimg.com/gamezone/pics/hv1/219/41/2200/143065674.jpg"/>
@@ -18,4 +18,4 @@
 <mqpo:SP_QRCODE spid="2" size="150" margin="0" style="11" colorarray="FC4F4F" url="http://kuaigoushop.99114.com/login/toHomeshop.do?shopid=${shopid}&ISDistri=yes"/>
 <mqpo:rendering id="11" colorarray="aa55ee" istransparent="true" iswhite="true"/>
 </mqpo:Basic>   
-</code>
+</pre></code>

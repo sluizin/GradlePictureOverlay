@@ -55,7 +55,11 @@ public class RenderingBufferedImage {
 		MQUtils.toFile(sourcebi, "D:/data/pic3.png");
 		return sourcebi;
 	}
-
+	/**
+	 * 
+	 * @param cs MQRenderingStyle
+	 * @return BufferedImage
+	 */
 	public static final BufferedImage getBufferedImage(MQRenderingStyle cs) {
 		if (cs == null || cs.getColorList() == null || cs.getColorList().size() == 0 || cs.getStyle() <= 0) return getBufferedImageStyle_BLACK(cs);
 		int style = cs.getStyle();
