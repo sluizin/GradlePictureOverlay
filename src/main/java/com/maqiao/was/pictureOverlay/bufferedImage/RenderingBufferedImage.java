@@ -25,7 +25,12 @@ import com.maqiao.was.pictureOverlay.MQUtils;
  * @since jdk1.7
  */
 public class RenderingBufferedImage {
-
+	/**
+	 * 
+	 * @param bim BufferedImage
+	 * @param cs MQRenderingStyle
+	 * @return BufferedImage
+	 */
 	public static final BufferedImage getBufferedImage(BufferedImage bim, MQRenderingStyle cs) {
 		if (bim == null || cs == null) return null;
 		int width = bim.getWidth();
