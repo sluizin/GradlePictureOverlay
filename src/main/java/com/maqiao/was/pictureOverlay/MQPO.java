@@ -50,7 +50,11 @@ public class MQPO {
 		if (index < 0 || index >= paraGroupKeyList.size()) return null;
 		return paraGroupKeyList.get(index);
 	}
-
+	/**
+	 * banner3_ys13
+	 * @param index int
+	 * @return String
+	 */
 	public String getProjectKey(int index) {
 		String groupKey = getGroupKey(index);
 		if (groupKey == null) return null;
@@ -78,17 +82,25 @@ public class MQPO {
 		String path = null;
 		if (savepath != null && savepath.length() > 0 && filename != null && filename.length() > 0) path = savepath + "/" + filename;
 		for (int i = 0; i < this.count(); i++) {
+			boolean valid = getRequestBoolean(i, MQConst.ACC_ValidKey, true);
+			if (!valid) continue;
 			MQAbstractLayer e = null;
-			boolean isCacheMap = false;
 			boolean iscache = getRequestBoolean(i, "iscache");
-			if (iscache) e = getMQAbstractLayerCache(i);
-			if (e != null) isCacheMap = true;
-			if (e == null) e = getMQAbstractLayer(i);				
+			if (iscache) {
+				e = getMQAbstractLayerCache(i);
+				if (e != null) {
+					list.add(e);
+					continue;
+				}
+			}
+			e = getMQAbstractLayer(i);
 			if (e != null && e.isAvailability()) {
 				if (e.issave && path != null) e.makeOwnFile(path);
-				if (iscache && !isCacheMap) {
+				if (iscache) {
 					String projectkey = getProjectKey(i);
-					if (projectkey != null) MQConst.ACC_POCache.put(projectkey, e);
+					if (projectkey != null && !MQConst.ACC_POCache.containsKey(projectkey)) {
+						MQConst.ACC_POCache.put(projectkey, e);
+					}
 				}
 				list.add(e);
 			}
@@ -118,6 +130,8 @@ public class MQPO {
 		if (!valid) return null;
 		int pictype = getRequestInt(index, MQConst.ACC_MainKey);
 		switch (pictype) {
+		case 0:
+			return new MQLayerNULL(this, index);
 		case 1:
 			/* 使用链接式图片 */
 			return getLayerHttpByIndex(index);
@@ -144,10 +158,7 @@ public class MQPO {
 		MQLayerPicture e = MQLayerPicture.getMQLayerPictureByTypeHttp(this, index);
 		if (e == null) return null;
 		if (!e.isSafe()) return null;
-		if (e.isAvailability()) {
-			e.mainkey = "pic_" + index;
-			return e;
-		}
+		if (e.isAvailability()) return e;
 		return null;
 	}
 
@@ -172,10 +183,7 @@ public class MQPO {
 	private MQAbstractLayer getLayerTextByIndex(int index) {
 		MQLayerText e = new MQLayerText(this, index);
 		if (!e.isSafe()) return null;
-		if (e.isAvailability()) {
-			e.mainkey = "text_" + index;
-			return e;
-		}
+		if (e.isAvailability()) return e;
 		return null;
 	}
 
@@ -190,10 +198,7 @@ public class MQPO {
 		MQLayerSpecialPicture e = MQLayerSpecialPicture.getMQLayerSpecialPicture(this, index);
 		if (e == null) return null;
 		if (!e.isSafe()) return null;
-		if (e.isAvailability()) {
-			e.mainkey = "pic_" + index;
-			return e;
-		}
+		if (e.isAvailability()) return e;
 		return null;
 	}
 
@@ -204,10 +209,13 @@ public class MQPO {
 	private void initialization() {
 		this.filename = MQUtils.getRequest(request, "filename");/* 设置项目文件名称[不含扩展名] */
 		Enumeration<?> paramNames = request.getParameterNames();
+		//boolean valid;
 		while (paramNames.hasMoreElements()) {
 			String paramName = (String) paramNames.nextElement();
 			String groupkey = MQUtils.getParaGroupByKey(paramName, MQConst.ACC_MainKey);
 			if (groupkey == null || groupkey.length() == 0) continue;
+			//valid = MQUtils.getRequestBoolean(request, groupkey, MQConst.ACC_ValidKey, true);
+			//if(!valid)continue;
 			/* MQLogger.loggerInfo("groupkey:" + groupkey); */
 			if (!paraGroupKeyList.contains(groupkey)) paraGroupKeyList.add(groupkey);
 		}
@@ -235,11 +243,13 @@ public class MQPO {
 		if (index < 0 || index >= this.count()) return nullDef;
 		return MQUtils.getRequestColor(request, this.paraGroupKeyList.get(index), key, nullDef);
 	}
+
 	public final List<Color> getRequestColorList(int index, String key) {
 		String colorarray = getRequest(index, key);
-		List<Color> colorList = MQUtils.getColorList(colorarray);	
+		List<Color> colorList = MQUtils.getColorList(colorarray);
 		return colorList;
 	}
+
 	public final int getRequestInt(int index, String key) {
 		return getRequestInt(index, key, 0);
 	}

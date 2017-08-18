@@ -15,10 +15,8 @@ import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-
 import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
-
 import com.maqiao.was.envParaVariable.MQEnvParaVariable;
 import com.maqiao.was.envParaVariable.MQEnvParaVariable.Env;
 
@@ -131,7 +129,8 @@ public final class MQUtils {
 	 * @return int
 	 */
 	public static final int getColorInteger16(Color color) {
-		return Integer.parseInt(toHexFromColor(color), 16);
+		if(color==null)return 0;
+		return color.getRGB();//Integer.parseInt(toHexFromColor(color), 16);
 	}
 
 	/**
@@ -213,6 +212,7 @@ public final class MQUtils {
 	public static final Color getColor(String value, Color nullDef) {
 		try {
 			if (value == null || value.length() == 0) return nullDef;
+			if (value.charAt(0) == '#') value = value.substring(1);
 			return new Color(Integer.parseInt(value, 16));
 		} catch (Exception ex) {
 			return nullDef;
@@ -361,10 +361,15 @@ public final class MQUtils {
 	public static final String getParaGroupByKey(String paramName, String key) {
 		if (paramName == null || paramName.length() == 0 || key == null || key.length() == 0) return null;
 		String[] array = paramName.split("_");
-		if (array.length != 3) return null;
+		if (array.length < 3) return null;
 		if (!MQConst.ACC_ParaHeadKey.equals(array[0])) return null;
-		if (!key.equals(array[2])) return null;
-		return array[1];
+		if (!key.equals(array[array.length-1])) return null;
+		StringBuilder sb=new StringBuilder(10);
+		for(int i=1;i<array.length-1;i++){
+			if(i!=1)sb.append('_');
+			sb.append(array[i]);			
+		}
+		return sb.toString();
 	}
 
 	/**

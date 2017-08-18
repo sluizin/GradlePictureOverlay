@@ -37,9 +37,9 @@ public class RenderingBufferedImage {
 		int height = bim.getHeight();
 		cs.setWidth(width);
 		cs.setHeight(height);
-		MQUtils.toFile(bim, "D:/data/pic1.png");
+		//MQUtils.toFile(bim, "D:/data/pic1.png");
 		BufferedImage sourcebi = getBufferedImage(cs);
-		MQUtils.toFile(sourcebi, "D:/data/pic2.png");
+		//MQUtils.toFile(sourcebi, "D:/data/pic2.png");
 		for (int x = 0; x < width; x++) {
 			for (int y = 0; y < height; y++) {
 				int p = bim.getRGB(x, y);
@@ -52,7 +52,7 @@ public class RenderingBufferedImage {
 				}
 			}
 		}
-		MQUtils.toFile(sourcebi, "D:/data/pic3.png");
+		//MQUtils.toFile(sourcebi, "D:/data/pic3.png");
 		return sourcebi;
 	}
 	/**

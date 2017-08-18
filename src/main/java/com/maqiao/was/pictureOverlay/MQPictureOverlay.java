@@ -43,8 +43,13 @@ public class MQPictureOverlay {
 		/* 复合图层 */
 		MQLogger.loggerInfo(MQConst.ACC_SPACING);
 		for (int i = 0; i < listSize; i++)
-			if (point != i) {
-				MQLogger.loggerInfo("mergelist.get(" + i + "):[" + list.get(i).getMainkey()+"]GroupKey:"+list.get(i).getMqpo().getGroupKey(i));
+			if (point != i && (list.get(i).laterStage==0)) {
+				MQLogger.loggerInfo("[merge]mergelist.get(" + i + "):[" + list.get(i).getMainkey()+"]GroupKey:"+list.get(i).getMqpo().getGroupKey(i));
+				buffImgBG = list.get(i).merge(buffImgBG);
+			}
+		for (int i = 0; i < listSize; i++)
+			if (list.get(i).laterStage>0) {
+				MQLogger.loggerInfo("[laterStage]mergelist.get(" + i + "):[" + list.get(i).getMainkey()+"]GroupKey:"+list.get(i).getMqpo().getGroupKey(i));
 				buffImgBG = list.get(i).merge(buffImgBG);
 			}
 		MQLogger.loggerInfo(MQConst.ACC_SPACING);
@@ -63,10 +68,10 @@ public class MQPictureOverlay {
 		int point = -1;
 		/* 查看各图层中是否含有背景关键字的图层 */
 		for (int i = 0; i < listSize; i++)
-			if (list.get(i).isBackground) return i;
+			if (list.get(i).isBackground &&(list.get(i).laterStage==0)) return i;
 		/* 如果各图层中没有含有背景关键字的图层，则选择第一个非文字图层 */
 		if (point == -1) for (int i = 0; i < listSize; i++)
-			if (list.get(i).isState() == 1) return i;
+			if (list.get(i).isState() == 1 &&(list.get(i).laterStage==0)) return i;
 		return -1;
 	}
 

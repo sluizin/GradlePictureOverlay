@@ -11,6 +11,7 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 
 import com.maqiao.was.pictureOverlay.bufferedImage.RenderingBufferedImage;
+import com.maqiao.was.pictureOverlay.bufferedImage.ZoomBufferedImage;
 
 /**
  * @author Sunjian
@@ -36,6 +37,10 @@ public abstract class MQAbstractLayer {
 	 * 是否是背景
 	 */
 	boolean isBackground = false;
+	/**
+	 * 是否是后期对BufferedImage进行操作
+	 */
+	int laterStage = 0;
 	/**
 	 * 图片图层
 	 */
@@ -71,6 +76,7 @@ public abstract class MQAbstractLayer {
 		this.valid = valid;
 		isBackground = mqpo.getRequestBoolean(index, "isBG", false);
 		issave = mqpo.getRequestBoolean(index, "issave", false);
+		laterStage = mqpo.getRequestInt(index, "laterStage", 0);
 	}
 
 	/**
@@ -80,6 +86,10 @@ public abstract class MQAbstractLayer {
 	 */
 	public BufferedImage merge(BufferedImage buffImgBG) {
 		if (buffImgBG == null || (!isAvailability())) return buffImgBG;
+		switch(laterStage){
+		case 1:
+			return ZoomBufferedImage.getBufferedImageZoom(buffImgBG, this);
+		}
 		BufferedImage newBuffImg = this.getBufferedImage();
 		if (newBuffImg == null) return buffImgBG;
 		int width = parameter.width;
@@ -103,13 +113,14 @@ public abstract class MQAbstractLayer {
 	 * @return boolean
 	 */
 	public boolean isAvailability() {
+		if (laterStage > 0) return true;
 		if (getBufferedImage() == null) return false;
 		if (parameter.width <= 0 || parameter.height <= 0) return false;
 		return isSafe();
 	}
 
 	/**
-	 * 判断是图层状态，1:图片 2:文字 3:其它特殊图片
+	 * 判断是图层状态，0:null 1:图片 2:文字 3:其它特殊图片
 	 * @return int
 	 */
 	public abstract int isState();
@@ -124,7 +135,7 @@ public abstract class MQAbstractLayer {
 		bufferImageFormat();
 		/* 后期渲染 */
 		if (parameter.renderingStyle != null) {
-			MQLogger.loggerInfo("后期渲染:"+this.mainkey);
+			MQLogger.loggerInfo("后期渲染:" + this.mainkey);
 			this.buffImg = RenderingBufferedImage.getBufferedImage(this.buffImg, parameter.renderingStyle);
 		}
 		return buffImg;
@@ -214,6 +225,22 @@ public abstract class MQAbstractLayer {
 		this.issave = issave;
 	}
 
+	public final boolean isIscache() {
+		return iscache;
+	}
+
+	public final void setIscache(boolean iscache) {
+		this.iscache = iscache;
+	}
+
+	public final int getLaterStage() {
+		return laterStage;
+	}
+
+	public final void setLaterStage(int laterStage) {
+		this.laterStage = laterStage;
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
@@ -231,8 +258,12 @@ public abstract class MQAbstractLayer {
 		builder.append(isFormat);
 		builder.append(", isBackground=");
 		builder.append(isBackground);
+		builder.append(", laterStage=");
+		builder.append(laterStage);
 		builder.append(", buffImg=");
 		builder.append(buffImg);
+		builder.append(", iscache=");
+		builder.append(iscache);
 		builder.append(", issave=");
 		builder.append(issave);
 		builder.append("]");

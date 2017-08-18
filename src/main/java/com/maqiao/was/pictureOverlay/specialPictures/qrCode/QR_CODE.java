@@ -123,7 +123,7 @@ public class QR_CODE implements InterfaceSpecialPicture {
 	 */
 	int getBgColor(int rgb) {
 		if (bgcolor == null) return MQUtils.getTransparent(rgb);
-		return MQUtils.getColorInteger16(bgcolor);
+		return bgcolor.getRGB();
 	}
 
 	static BitMatrix updateBit(BitMatrix matrix, int margin) {
