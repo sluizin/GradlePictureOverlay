@@ -128,7 +128,7 @@ public class MQPO {
 	public MQAbstractLayer getMQAbstractLayer(int index) {
 		boolean valid = getRequestBoolean(index, MQConst.ACC_ValidKey, true);
 		if (!valid) return null;
-		int pictype = getRequestInt(index, MQConst.ACC_MainKey);
+		int pictype = getRequestInt(index, MQConst.ACC_MainKey,-1);
 		switch (pictype) {
 		case 0:
 			return new MQLayerNULL(this, index);

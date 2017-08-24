@@ -80,7 +80,13 @@ public final class MQLayerPicture extends MQAbstractLayer {
 			return null;
 		}
 	}
-
+	/**
+	 * 从MultipartFile中抽取MQLayerPicture
+	 * @param mqpo MQPO
+	 * @param index int
+	 * @param file MultipartFile
+	 * @return MQLayerPicture
+	 */
 	public static final MQLayerPicture getMQLayerPictureByTypeMultiPartFile(MQPO mqpo, int index, MultipartFile file) {
 		if (file == null) return null;
 		try {
@@ -92,7 +98,13 @@ public final class MQLayerPicture extends MQAbstractLayer {
 			return null;
 		}
 	}
-
+	/**
+	 * 从文件中抽取MQLayerPicture
+	 * @param mqpo MQPO
+	 * @param index int
+	 * @param file File
+	 * @return MQLayerPicture
+	 */
 	public static final MQLayerPicture getMQLayerPicture(MQPO mqpo, int index, File file) {
 		if (file == null) return null;
 		if (!file.isFile()) return null;

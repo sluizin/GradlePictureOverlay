@@ -31,6 +31,15 @@ import com.maqiao.was.envParaVariable.MQEnvParaVariable.Env;
 @Controller
 @RequestMapping("/mqpo")
 public class MQController {
+	/**
+	 * 下载某个图片文件
+	 * @param request HttpServletRequest
+	 * @param response HttpServletResponse
+	 * @param shopid int
+	 * @param filename String
+	 * @return Object
+	 * @throws IOException
+	 */
 	@ResponseBody
 	@RequestMapping(value = "/makePO/Download/{shopid:[\\d]+}/{filename}", produces = "application/octet-stream;charset=utf-8")
 	public Object download(HttpServletRequest request, HttpServletResponse response, @PathVariable int shopid, @PathVariable String filename) throws IOException {
@@ -42,6 +51,11 @@ public class MQController {
 		headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
 		return new ResponseEntity<byte[]>(FileUtils.readFileToByteArray(file), headers, HttpStatus.OK);
 	}
+	/**
+	 * 得到商家海报保存的实际地址(目录)
+	 * @param shopid int
+	 * @return String
+	 */
 	static final String getPicturePath(int shopid) {
 		String path = "/data/shopimage/image/shop/" + shopid + "/poster";
 		if (MQEnvParaVariable.ACC_ENV == Env.DEV) path = "d:/data/shopimage/image/shop/" + shopid + "/poster";
@@ -49,24 +63,49 @@ public class MQController {
 		if (!file.exists()) file.mkdirs();
 		return path;
 	}
-
+	/**
+	 * 得到商家海报保存的实际地址
+	 * @param shopid int
+	 * @param filename String
+	 * @return String
+	 */
 	static final String getPicturePath(int shopid, String filename) {
 		return getPicturePath(shopid) + "/" + filename + MQConst.ACC_FileExt;
 	}
-
+	/**
+	 * 入口端Controller
+	 * @param request HttpServletRequest
+	 * @param shopid int
+	 * @param filename String
+	 * @return String
+	 * @throws IOException
+	 */
 	@ResponseBody
 	@RequestMapping(value = "/makePO/{shopid:[\\d]+}/{filename}", produces = "application/json;charset=utf-8")
 	public String makePO(HttpServletRequest request, @PathVariable int shopid, @PathVariable String filename) throws IOException {
 		return makefile(request, shopid, filename);
 	}
-
+	/**
+	 * 入口端Controller
+	 * @param request HttpServletRequest
+	 * @param shopid int
+	 * @param filename String
+	 * @return String
+	 * @throws IOException
+	 */
 	@ResponseBody
 	@RequestMapping(value = "/makePO/{shopid:[\\d]+}", produces = "application/json;charset=utf-8")
-	public String makePO_1(HttpServletRequest request, @PathVariable int shopid, @RequestParam(value = "po_filename", required = false) String filename) throws IOException {
+	public String makePO_1(HttpServletRequest request, @PathVariable int shopid, @RequestParam(value = MQConst.ACC_ParaHeadKey+"_filename", required = false) String filename) throws IOException {
 		if (filename == null) filename = "temp";
 		return makefile(request,  shopid, filename);
 	}
-
+	/**
+	 * 生成图片
+	 * @param request HttpServletRequest
+	 * @param shopid int
+	 * @param filename String
+	 * @return String
+	 */
 	static String makefile(HttpServletRequest request, int shopid, String filename) {
 		ReturnJson rj = new ReturnJson();
 		if (request == null) return rj.toJson();
@@ -82,17 +121,32 @@ public class MQController {
 		MQLogger.loggerInfo("rj:" + rj.toJson());
 		return rj.toJson();
 	}
-
+	/**
+	 * 得到图片保存的域名地址
+	 * @param shopid int
+	 * @return String
+	 */
 	public static final String getURLPicturePath(int shopid) {
 		if (MQEnvParaVariable.ACC_ENV == Env.DEV) { return "http://192.168.1.110:94/image/shop/" + shopid + "/poster"; }
 		if (MQEnvParaVariable.ACC_ENV == Env.TEST) { return "http://kuaigoucs.99114.com/image/image/shop/" + shopid + "/poster"; }
 		if (MQEnvParaVariable.ACC_ENV == Env.ONLINE) { return "http://kuaigou.99114.com/image/image/shop/" + shopid + "/poster"; }
 		return "http://192.168.1.110:94/image/shop/" + shopid + "/poster";
 	}
-
+	/**
+	 * 得到图片的域名地址
+	 * @param shopid int
+	 * @param filename String
+	 * @return String
+	 */
 	public static final String getURLPicturePath(int shopid, String filename) {
 		return getURLPicturePath(shopid) + "/" + filename + MQConst.ACC_FileExt;
 	}
+	/**
+	 * 返回的json状态对象
+	 * @author Sunjian
+	 * @version 1.0
+	 * @since jdk1.7
+	 */
 	static class ReturnJson {
 		boolean state = false;
 		String imghttp = "";

@@ -136,7 +136,7 @@ public abstract class MQAbstractLayer {
 		/* 后期渲染 */
 		if (parameter.renderingStyle != null) {
 			MQLogger.loggerInfo("后期渲染:" + this.mainkey);
-			this.buffImg = RenderingBufferedImage.getBufferedImage(this.buffImg, parameter.renderingStyle);
+			this.buffImg = RenderingBufferedImage.getBufferedImage(this.buffImg, parameter);
 		}
 		return buffImg;
 	}
@@ -153,6 +153,7 @@ public abstract class MQAbstractLayer {
 	public void makeOwnFile(String path) {
 		if (!issave) return;
 		BufferedImage buffImg = getBufferedImage();
+		if (buffImg==null) return;
 		try {
 			File file = new File(path + "_" + this.mainkey + MQConst.ACC_FileExt);
 			ImageIO.write(buffImg, "png", file);

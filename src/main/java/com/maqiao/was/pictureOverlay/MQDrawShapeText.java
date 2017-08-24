@@ -48,9 +48,10 @@ public class MQDrawShapeText {
 		final int fontHeight = m.getAscent() + m.getDescent();
 		int x = 0, y = 0;
 		int textlen = m.stringWidth(mqLayerText.text);
+		MQLogger.loggerInfo(parameter.width+"/"+textlen);
 		if (textlen <= parameter.width) {
 			y = getY(m, parameter.height, parameter.valign);
-			//MQLogger.loggerInfo("fontHeight:[" + fontHeight + "]m.getAscent():[" + m.getAscent() + "]x[" + x + "]y[" + y + "]" + mqLayerText.text + "\t parameter.align:" + (parameter.align % 3));
+			MQLogger.loggerInfo("fontHeight:[" + fontHeight + "]m.getAscent():[" + m.getAscent() + "]x[" + x + "]y[" + y + "]" + mqLayerText.text + "\t parameter.align:" + (parameter.align % 3));
 			drawString(g, mqLayerText.text, parameter.width, x, y, parameter.align % 3);
 			return bi;
 		}

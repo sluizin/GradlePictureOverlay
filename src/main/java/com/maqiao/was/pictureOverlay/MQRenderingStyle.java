@@ -19,6 +19,8 @@ public final class MQRenderingStyle {
 	List<Color> colorList = null;
 	boolean isTransparent = false;
 	boolean isWhite = false;
+	/** 使用新背景 */
+	boolean usebg=false;
 	int width = 0;
 	int height = 0;
 	public MQRenderingStyle(){
@@ -34,6 +36,7 @@ public final class MQRenderingStyle {
 		this.colorList = mqpo.getRequestColorList(index, "rendering.colorarray");
 		this.isTransparent = mqpo.getRequestBoolean(index, "rendering.istransparent", false);
 		this.isWhite = mqpo.getRequestBoolean(index, "rendering.iswhite", false);
+		this.usebg = mqpo.getRequestBoolean(index, "rendering.usebg", false);
 
 	}
 
@@ -101,6 +104,12 @@ public final class MQRenderingStyle {
 		this.height = height;
 	}
 
+	public final boolean isUsebg() {
+		return usebg;
+	}
+	public final void setUsebg(boolean usebg) {
+		this.usebg = usebg;
+	}
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();

@@ -145,6 +145,14 @@ public class MQLayerParameter {
 		this.color = color;
 	}
 
+	public final MQRenderingStyle getRenderingStyle() {
+		return renderingStyle;
+	}
+
+	public final void setRenderingStyle(MQRenderingStyle renderingStyle) {
+		this.renderingStyle = renderingStyle;
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();

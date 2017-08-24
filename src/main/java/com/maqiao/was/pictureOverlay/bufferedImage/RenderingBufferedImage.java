@@ -15,6 +15,7 @@ import java.util.List;
 
 import javax.imageio.ImageIO;
 
+import com.maqiao.was.pictureOverlay.MQLayerParameter;
 import com.maqiao.was.pictureOverlay.MQRenderingStyle;
 import com.maqiao.was.pictureOverlay.MQUtils;
 
@@ -25,38 +26,63 @@ import com.maqiao.was.pictureOverlay.MQUtils;
  * @since jdk1.7
  */
 public class RenderingBufferedImage {
-	/**
-	 * 
-	 * @param bim BufferedImage
-	 * @param cs MQRenderingStyle
-	 * @return BufferedImage
-	 */
-	public static final BufferedImage getBufferedImage(BufferedImage bim, MQRenderingStyle cs) {
+
+	public static final BufferedImage getBufferedImage(BufferedImage bim, MQLayerParameter parameter) {
+		return getBufferedImage(bim, parameter.getRenderingStyle(), parameter.getBgcolor());
+	}
+
+	public static final BufferedImage getBufferedImage(BufferedImage bim, MQRenderingStyle cs, Color bgcolor) {
 		if (bim == null || cs == null) return null;
 		int width = bim.getWidth();
 		int height = bim.getHeight();
 		cs.setWidth(width);
 		cs.setHeight(height);
-		//MQUtils.toFile(bim, "D:/data/pic1.png");
-		BufferedImage sourcebi = getBufferedImage(cs);
-		//MQUtils.toFile(sourcebi, "D:/data/pic2.png");
-		for (int x = 0; x < width; x++) {
-			for (int y = 0; y < height; y++) {
-				int p = bim.getRGB(x, y);
-				if (cs.isTransparent() && MQUtils.isTransparent(p)) {
-					MQUtils.setTransparent(sourcebi, x, y);/* 把生成的图片的定点变成透明 */
-					continue;
-				}
-				if (cs.isWhite() && MQUtils.isWhite(p)) {
-					sourcebi.setRGB(x, y, Color.WHITE.getRGB());/* 把生成的图片的定点变成白色 */
-				}
-			}
+		BufferedImage sourcebi=null;
+		/**
+		 * 9999，则返回原buffer
+		 */
+		if(cs.getStyle()==9999){
+			sourcebi = bim;
+		}else{
+			sourcebi = getBufferedImage(cs);
 		}
-		//MQUtils.toFile(sourcebi, "D:/data/pic3.png");
+		for (int x = 0; x < width; x++)
+			for (int y = 0; y < height; y++)
+				changePoint(sourcebi, bim.getRGB(x, y), x, y, cs.isTransparent(), cs.isWhite(), cs.isUsebg(), bgcolor);
 		return sourcebi;
 	}
+
 	/**
-	 * 
+	 * 把某个点，是否换新的背景
+	 * @param sourcebi BufferedImage
+	 * @param p int
+	 * @param x int
+	 * @param y int
+	 * @param isTransparent boolean
+	 * @param isWhite boolean
+	 * @param usebg boolean
+	 * @param bgcolor Color
+	 */
+	public static void changePoint(BufferedImage sourcebi, int p, int x, int y, boolean isTransparent, boolean isWhite, boolean usebg, Color bgcolor) {
+		if (usebg) {
+			if ((isTransparent && MQUtils.isTransparent(p)) || (isWhite && MQUtils.isWhite(p))) {
+				if (bgcolor == null) MQUtils.setTransparent(sourcebi, x, y);/* 把生成的图片的定点变成透明 */
+				else sourcebi.setRGB(x, y, bgcolor.getRGB());/* 把生成的图片的定点变成白色 */
+			}
+
+		} else {
+			if (isTransparent && MQUtils.isTransparent(p)) {
+				MQUtils.setTransparent(sourcebi, x, y);/* 把生成的图片的定点变成透明 */
+				return;
+			}
+			if (isWhite && MQUtils.isWhite(p)) {
+				sourcebi.setRGB(x, y, Color.WHITE.getRGB());/* 把生成的图片的定点变成白色 */
+			}
+		}
+
+	}
+
+	/**
 	 * @param cs MQRenderingStyle
 	 * @return BufferedImage
 	 */
@@ -292,7 +318,7 @@ public class RenderingBufferedImage {
 				BufferedImage buffImgSource = ImageIO.read(file);
 				for (int ii = 0, size = list.size(); ii < size; ii++) {
 					MQRenderingStyle cs = list.get(ii);
-					BufferedImage buffImg = getBufferedImage(buffImgSource, cs);
+					BufferedImage buffImg = getBufferedImage(buffImgSource, cs,  null);
 					if (buffImg != null) {
 						String newFilepath = path + fileArray[i] + "_" + ii + ".png";
 						MQUtils.toFile(buffImg, newFilepath);

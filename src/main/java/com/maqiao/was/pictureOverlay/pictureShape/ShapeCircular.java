@@ -14,6 +14,7 @@ import com.maqiao.was.pictureOverlay.MQLayerPicture;
 import com.maqiao.was.pictureOverlay.MQPO;
 
 /**
+ * 切成圆形
  * @author Sunjian
  * @version 1.0
  * @since jdk1.7
