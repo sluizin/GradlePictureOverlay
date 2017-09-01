@@ -35,6 +35,29 @@ public class MQConst {
 	/** 生成的文件的扩展名 */
 	public static final String ACC_FileExt = ".png";
 	public static final String path = "d:/data/po/";
+	/**
+	 * 是否使用静态存储
+	 */
+	static final boolean isState=true;
+	/**
+	 * /data/kgdata<br>
+	 * /data/shopimage
+	 */
+	static String outputSavePath;
+	/**
+	 * http://static.99114.com/kgdata<br>
+	 * http://kuaigou.99114.com/image
+	 */
+	static String outputUrlPath;
+	static {
+		if(isState){
+			outputSavePath = "/data/kgdata";
+			outputUrlPath = "http://static.99114.com/kgdata";
+		}else{
+			outputSavePath = "/data/shopimage";
+			outputUrlPath = "http://kuaigou.99114.com/image";			
+		}
+	}
 	static final String ACC_SPACING = "============================================================================================";
 	/**
 	 * 把画片变形放在缓存中用于保存

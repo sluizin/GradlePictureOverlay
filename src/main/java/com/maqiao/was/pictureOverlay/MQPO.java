@@ -4,6 +4,7 @@
 package com.maqiao.was.pictureOverlay;
 
 import java.awt.Color;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -50,6 +51,7 @@ public class MQPO {
 		if (index < 0 || index >= paraGroupKeyList.size()) return null;
 		return paraGroupKeyList.get(index);
 	}
+
 	/**
 	 * banner3_ys13
 	 * @param index int
@@ -79,8 +81,7 @@ public class MQPO {
 	 */
 	public List<MQAbstractLayer> getMQAbstractLayer() {
 		List<MQAbstractLayer> list = new ArrayList<MQAbstractLayer>();
-		String path = null;
-		if (savepath != null && savepath.length() > 0 && filename != null && filename.length() > 0) path = savepath + "/" + filename;
+		String path = getSaveCacheFile();
 		for (int i = 0; i < this.count(); i++) {
 			boolean valid = getRequestBoolean(i, MQConst.ACC_ValidKey, true);
 			if (!valid) continue;
@@ -128,7 +129,7 @@ public class MQPO {
 	public MQAbstractLayer getMQAbstractLayer(int index) {
 		boolean valid = getRequestBoolean(index, MQConst.ACC_ValidKey, true);
 		if (!valid) return null;
-		int pictype = getRequestInt(index, MQConst.ACC_MainKey,-1);
+		int pictype = getRequestInt(index, MQConst.ACC_MainKey, -1);
 		switch (pictype) {
 		case 0:
 			return new MQLayerNULL(this, index);
@@ -282,12 +283,59 @@ public class MQPO {
 		return MQUtils.getParaFullName(this.paraGroupKeyList.get(index), key);
 	}
 
+	String newFilename = null;
+
+	/**
+	 * 得到主文件名，不含扩展名
+	 * @return
+	 */
+	public String getSaveFileName() {
+		if (newFilename == null) newFilename = filename + "_master_" + MQUtils.getRndFileName(4);
+		return newFilename;
+	}
+
 	/**
 	 * 得到本系统生成主图片
 	 * @return String
 	 */
 	public String getSavePathFile() {
-		return savepath + "/" + filename + MQConst.ACC_FileExt;
+		return savepath + "/" + getSaveFileName() + MQConst.ACC_FileExt;
+	}
+
+	public void delAllFile() {
+		File file = new File(savepath);
+		if (!file.isDirectory()) return;
+		File[] array = file.listFiles();
+		String masterkey = filename + "_master_";
+		int len = masterkey.length();
+		for (int i = 0; i < array.length; i++) {
+			File f = array[i];
+			if (!f.isFile()) continue;
+			if (f.getName().length() <= len) continue;
+			if (masterkey.equals(f.getName().substring(0, len))) f.delete();
+		}
+	}
+
+	/**
+	 * 得到临时文件的路径与文件名(不含扩展名)<br>
+	 * "/data/shopimage/image/shop/1426/poster/banner1"
+	 * @return String
+	 */
+	public String getSaveCacheFile() {
+		String path = null;
+		if (savepath != null && savepath.length() > 0 && filename != null && filename.length() > 0) path = savepath + "/" + filename;
+		return path;
+	}
+
+	/**
+	 * 得到临时文件的路径与文件名[合成以后的名称]<br>
+	 * "/data/shopimage/image/shop/1426/poster/banner1_merger.png"
+	 * @return String
+	 */
+	public String getSaveCacheFileMerger() {
+		String path = getSaveCacheFile();
+		if (path == null) return null;
+		return path + "_merger" + MQConst.ACC_FileExt;
 	}
 
 	@Override

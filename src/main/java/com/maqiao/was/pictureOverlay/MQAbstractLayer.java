@@ -51,9 +51,13 @@ public abstract class MQAbstractLayer {
 	boolean iscache = false;
 
 	/**
-	 * 是否生成临时图层文件，以 {filename}_pic_{index}.png进行保存
+	 * 是否生成临时图层文件，以 {filename}_pic_{index}.png进行保存(只是本图层文件)
 	 */
 	boolean issave = false;
+	/**
+	 * 是否生成临时图层文件，以 {filename}_pic_{index}_1.png进行保存(全成以后的图层文件)
+	 */
+	boolean issavemerge = false;
 
 	public MQAbstractLayer(MQPO mqpo, int index) {
 		this.mqpo = mqpo;
@@ -76,6 +80,7 @@ public abstract class MQAbstractLayer {
 		this.valid = valid;
 		isBackground = mqpo.getRequestBoolean(index, "isBG", false);
 		issave = mqpo.getRequestBoolean(index, "issave", false);
+		issavemerge = mqpo.getRequestBoolean(index, "issavemerge", false);
 		laterStage = mqpo.getRequestInt(index, "laterStage", 0);
 	}
 
@@ -86,7 +91,7 @@ public abstract class MQAbstractLayer {
 	 */
 	public BufferedImage merge(BufferedImage buffImgBG) {
 		if (buffImgBG == null || (!isAvailability())) return buffImgBG;
-		switch(laterStage){
+		switch (laterStage) {
 		case 1:
 			return ZoomBufferedImage.getBufferedImageZoom(buffImgBG, this);
 		}
@@ -153,7 +158,7 @@ public abstract class MQAbstractLayer {
 	public void makeOwnFile(String path) {
 		if (!issave) return;
 		BufferedImage buffImg = getBufferedImage();
-		if (buffImg==null) return;
+		if (buffImg == null) return;
 		try {
 			File file = new File(path + "_" + this.mainkey + MQConst.ACC_FileExt);
 			ImageIO.write(buffImg, "png", file);
@@ -242,6 +247,14 @@ public abstract class MQAbstractLayer {
 		this.laterStage = laterStage;
 	}
 
+	public final boolean isIssavemerge() {
+		return issavemerge;
+	}
+
+	public final void setIssavemerge(boolean issavemerge) {
+		this.issavemerge = issavemerge;
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
@@ -267,6 +280,8 @@ public abstract class MQAbstractLayer {
 		builder.append(iscache);
 		builder.append(", issave=");
 		builder.append(issave);
+		builder.append(", issavemerge=");
+		builder.append(issavemerge);
 		builder.append("]");
 		return builder.toString();
 	}

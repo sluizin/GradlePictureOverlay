@@ -40,16 +40,22 @@ public class MQPictureOverlay {
 		int point = getMQAbstractLayerBackGround(list);
 		if (point == -1) return null;
 		BufferedImage buffImgBG = list.get(point).getBufferedImage();
+		MQPO mqpo = list.get(point).getMqpo();
 		/* 复合图层 */
 		MQLogger.loggerInfo(MQConst.ACC_SPACING);
+
+		String path = mqpo.getSaveCacheFileMerger();
 		for (int i = 0; i < listSize; i++)
-			if (point != i && (list.get(i).laterStage==0)) {
-				MQLogger.loggerInfo("[merge]mergelist.get(" + i + "):[" + list.get(i).getMainkey()+"]GroupKey:"+list.get(i).getMqpo().getGroupKey(i));
-				buffImgBG = list.get(i).merge(buffImgBG);
+			if (point != i && (list.get(i).laterStage == 0)) {
+				MQLogger.loggerInfo("[merge]mergelist.get(" + i + "):[" + list.get(i).getMainkey() + "]GroupKey:" + list.get(i).getMqpo().getGroupKey(i));
+				MQAbstractLayer e = list.get(i);
+				buffImgBG = e.merge(buffImgBG);
+				/** 保存合并以后的图层 */
+				if (e.issavemerge && path != null) MQUtils.toFile(buffImgBG, path);
 			}
 		for (int i = 0; i < listSize; i++)
-			if (list.get(i).laterStage>0) {
-				MQLogger.loggerInfo("[laterStage]mergelist.get(" + i + "):[" + list.get(i).getMainkey()+"]GroupKey:"+list.get(i).getMqpo().getGroupKey(i));
+			if (list.get(i).laterStage > 0) {
+				MQLogger.loggerInfo("[laterStage]mergelist.get(" + i + "):[" + list.get(i).getMainkey() + "]GroupKey:" + list.get(i).getMqpo().getGroupKey(i));
 				buffImgBG = list.get(i).merge(buffImgBG);
 			}
 		MQLogger.loggerInfo(MQConst.ACC_SPACING);
@@ -68,10 +74,10 @@ public class MQPictureOverlay {
 		int point = -1;
 		/* 查看各图层中是否含有背景关键字的图层 */
 		for (int i = 0; i < listSize; i++)
-			if (list.get(i).isBackground &&(list.get(i).laterStage==0)) return i;
+			if (list.get(i).isBackground && (list.get(i).laterStage == 0)) return i;
 		/* 如果各图层中没有含有背景关键字的图层，则选择第一个非文字图层 */
 		if (point == -1) for (int i = 0; i < listSize; i++)
-			if (list.get(i).isState() == 1 &&(list.get(i).laterStage==0)) return i;
+			if (list.get(i).isState() == 1 && (list.get(i).laterStage == 0)) return i;
 		return -1;
 	}
 
@@ -82,7 +88,11 @@ public class MQPictureOverlay {
 	 * @param array LayerElement[]
 	 */
 	public static boolean save(String pathfile, MQAbstractLayer... array) {
+		long time1, time2;
+		time1 = System.currentTimeMillis();
 		BufferedImage outBuff = merge(array);
+		time2 = System.currentTimeMillis();
+		MQLogger.loggerInfo("合成图片共用时:" + (time2 - time1));
 		if (outBuff == null) return false;
 		try {
 			String formatName = pathfile.substring(pathfile.lastIndexOf(".") + 1);
@@ -112,12 +122,20 @@ public class MQPictureOverlay {
 	 * @param makeFile MakeFile
 	 * @param savepathfile String
 	 * @param request HttpServletRequest
-	 * @return boolean
+	 * @return String
 	 */
-	public static boolean save(String savepathfile, HttpServletRequest request) {
-		if (request == null) return false;
-		MQPO mqpo=new MQPO(request,savepathfile);
+	public static String save(String savepathfile, HttpServletRequest request) {
+		if (request == null) return null;
+		long time1 = System.currentTimeMillis();
+		MQPO mqpo = new MQPO(request, savepathfile);
 		List<MQAbstractLayer> list = mqpo.getMQAbstractLayer();
-		return save(mqpo.getSavePathFile(), list);
+		MQLogger.loggerInfo("提取图层共用时:" + (System.currentTimeMillis() - time1));
+		MQAbstractLayer[] e = {};
+		MQAbstractLayer[] array = list.toArray(e);
+		mqpo.delAllFile();
+		boolean t = save(mqpo.getSavePathFile(), array);
+		MQLogger.loggerInfo("提取生成共用时:" + (System.currentTimeMillis() - time1));
+		if(t)return mqpo.getSaveFileName();
+		return null;
 	}
 }

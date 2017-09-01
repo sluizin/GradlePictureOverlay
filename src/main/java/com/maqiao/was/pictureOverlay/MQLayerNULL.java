@@ -70,6 +70,8 @@ public class MQLayerNULL extends MQAbstractLayer {
 		builder.append(iscache);
 		builder.append(", issave=");
 		builder.append(issave);
+		builder.append(", issavemerge=");
+		builder.append(issavemerge);
 		builder.append("]");
 		return builder.toString();
 	}

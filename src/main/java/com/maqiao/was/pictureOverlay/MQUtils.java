@@ -12,7 +12,9 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 import javax.imageio.ImageIO;
@@ -72,7 +74,24 @@ public final class MQUtils {
 	public final static int getRndInt(final int min, final int max) {
 		return min + rd1.nextInt(max - min + 1);
 	}
-
+	/**
+	 * 得到随机数的文件名 yyyyMMddHHmmssSSS Rnd(num)
+	 * @param num int
+	 * @return String
+	 */
+	public final static String getRndFileName(int num){
+		final SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmmssSSS");
+		StringBuilder sb=new StringBuilder(30);
+		sb.append(df.format(new Date()));
+		for(int i=0;i<num;i++)
+			sb.append(getRndInt(0,9));
+		return sb.toString();
+	}
+	public static void main(String[] args) 
+	{
+		System.out.println("Hello World!");
+		System.out.println(getRndFileName(4));
+	}
 	/**
 	 * 判断字符是否是url
 	 * @param urlStr String

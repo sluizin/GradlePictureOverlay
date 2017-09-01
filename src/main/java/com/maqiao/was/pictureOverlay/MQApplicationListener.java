@@ -11,7 +11,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationListener;
-import org.springframework.context.annotation.Scope;
+//import org.springframework.context.annotation.Scope;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +26,7 @@ import com.maqiao.was.pictureOverlay.specialPictures.qrCode.QR_CODE;
  * @since jdk1.7
  */
 @Service("mqPOApplicationListener")
-@Scope("singleton")
+//@Scope("singleton")
 public class MQApplicationListener implements ApplicationListener<ContextRefreshedEvent>, ApplicationContextAware, ServletContextListener {
 	private static ServletContext sc;
 	private static ApplicationContext ac;
