@@ -41,10 +41,10 @@ public class MQController {
 	 * @throws IOException
 	 */
 	@ResponseBody
-	@RequestMapping(value = "/makePO/Download/{shopid:[\\d]+}/{filename}", produces = "application/octet-stream;charset=utf-8")
-	public Object download(HttpServletRequest request, HttpServletResponse response, @PathVariable int shopid, @PathVariable String filename) throws IOException {
+	@RequestMapping(value = "/makePO/Download/{shopid:[\\d]+}/{root}/{filename}", produces = "application/octet-stream;charset=utf-8")
+	public Object download(HttpServletRequest request, HttpServletResponse response, @PathVariable int shopid, @PathVariable String root, @PathVariable String filename) throws IOException {
 		MQEnvParaVariable.testing(request);
-		String pathfile = getPicturePath(shopid, filename);
+		String pathfile = getPicturePath(shopid,root, filename);
 		File file = new File(pathfile);
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentDispositionFormData("attachment", filename + ".png");
@@ -62,14 +62,14 @@ public class MQController {
 	 * @throws IOException
 	 */
 	@ResponseBody
-	@RequestMapping(value = "/makePO/Download/Master/{shopid:[\\d]+}/{filename}", produces = "application/octet-stream;charset=utf-8")
-	public Object downloadMaster(HttpServletRequest request, HttpServletResponse response, @PathVariable int shopid, @PathVariable String filename) throws IOException {
+	@RequestMapping(value = "/makePO/Download/Master/{shopid:[\\d]+}/{root}/{filename}", produces = "application/octet-stream;charset=utf-8")
+	public Object downloadMaster(HttpServletRequest request, HttpServletResponse response, @PathVariable int shopid, @PathVariable String root, @PathVariable String filename) throws IOException {
 		MQEnvParaVariable.testing(request);
 		String pathfile = getPicturePath(shopid, filename);
 		File file = new File(pathfile);
 		if (!file.exists()) file = null;
 		if (file == null) {
-			String path = getPicturePath(shopid);
+			String path = getPicturePath(shopid,root);
 			String newfileExt = filename + "_master_";
 			File[] array = (new File(path)).listFiles();
 			for (int i = 0; i < array.length; i++) {
@@ -93,11 +93,12 @@ public class MQController {
 	/**
 	 * 得到商家海报保存的实际地址(目录)
 	 * @param shopid int
+	 * @param root String
 	 * @return String
 	 */
-	static final String getPicturePath(int shopid) {
-		String path = MQConst.outputSavePath + "/image/shop/" + shopid + "/poster";
-		if (MQEnvParaVariable.ACC_ENV == Env.DEV) path = "d:/data/shopimage/image/shop/" + shopid + "/poster";
+	static final String getPicturePath(int shopid,String root) {
+		String path = MQConst.outputSavePath + "/image/shop/" + shopid + "/"+root;
+		if (MQEnvParaVariable.ACC_ENV == Env.DEV) path = "d:/data/shopimage/image/shop/" + shopid + "/"+root;
 		File file = new File(path);
 		if (!file.exists()) file.mkdirs();
 		return path;
@@ -109,24 +110,9 @@ public class MQController {
 	 * @param filename String
 	 * @return String
 	 */
-	static final String getPicturePath(int shopid, String filename) {
-		return getPicturePath(shopid) + "/" + filename + MQConst.ACC_FileExt;
+	static final String getPicturePath(int shopid,String root, String filename) {
+		return getPicturePath(shopid,root) + "/" + filename + MQConst.ACC_FileExt;
 	}
-
-	/**
-	 * 入口端Controller
-	 * @param request HttpServletRequest
-	 * @param shopid int
-	 * @param filename String
-	 * @return String
-	 * @throws IOException
-	 */
-	@ResponseBody
-	@RequestMapping(value = "/makePO/{shopid:[\\d]+}/{filename}", produces = "application/json;charset=utf-8")
-	public String makePO(HttpServletRequest request, @PathVariable int shopid, @PathVariable String filename) throws IOException {
-		return makePO_1(request, shopid, filename);
-	}
-
 	/**
 	 * 入口端Controller
 	 * @param request HttpServletRequest
@@ -137,9 +123,10 @@ public class MQController {
 	 */
 	@ResponseBody
 	@RequestMapping(value = "/makePO/{shopid:[\\d]+}", produces = "application/json;charset=utf-8")
-	public String makePO_1(HttpServletRequest request, @PathVariable int shopid, @RequestParam(value = MQConst.ACC_ParaHeadKey + "_filename", required = false) String filename) throws IOException {
+	public String makePO_1(HttpServletRequest request, @PathVariable int shopid, @RequestParam(value = MQConst.ACC_ParaHeadKey + "_root", required = false) String root, @RequestParam(value = MQConst.ACC_ParaHeadKey + "_filename", required = false) String filename) throws IOException {
+		if(root==null || root.length()==0)root="poster";
 		if (filename == null) filename = "temp";
-		return makefile(request, shopid, filename);
+		return makefile(request, shopid,root, filename);
 	}
 
 	/**
@@ -149,19 +136,19 @@ public class MQController {
 	 * @param filename String
 	 * @return String
 	 */
-	static String makefile(HttpServletRequest request, int shopid, String filename) {
+	static String makefile(HttpServletRequest request, int shopid,String root, String filename) {
 		ReturnJson rj = new ReturnJson();
 		if (request == null) return rj.toJson();
 		if (filename == null || filename.length() == 0) return rj.toJson();
 		MQEnvParaVariable.testing(request);
-		String path = getPicturePath(shopid);
+		String path = getPicturePath(shopid,root);
 		String saveFileName = MQPictureOverlay.save(path, request);
 		if (saveFileName == null) rj.state = false;
 		else rj.state = true;
 		if (rj.state) {
 			rj.filename = saveFileName;
-			rj.imghttp = getURLPicturePath(shopid, saveFileName);
-			rj.imgsource = getPicturePath(shopid, saveFileName);
+			rj.imghttp = getURLPicturePath(shopid,root, saveFileName);
+			rj.imgsource = getPicturePath(shopid,root, saveFileName);
 		}
 		MQLogger.loggerInfo("rj:" + rj.toJson());
 		return rj.toJson();
@@ -172,11 +159,11 @@ public class MQController {
 	 * @param shopid int
 	 * @return String
 	 */
-	public static final String getURLPicturePath(int shopid) {
-		if (MQEnvParaVariable.ACC_ENV == Env.DEV) { return "http://192.168.1.110:94/image/shop/" + shopid + "/poster"; }
-		if (MQEnvParaVariable.ACC_ENV == Env.TEST) { return MQConst.outputUrlPath + "/image/shop/" + shopid + "/poster"; }
-		if (MQEnvParaVariable.ACC_ENV == Env.ONLINE) { return MQConst.outputUrlPath + "/image/shop/" + shopid + "/poster"; }
-		return "http://192.168.1.110:94/image/shop/" + shopid + "/poster";
+	public static final String getURLPicturePath(int shopid,String root) {
+		if (MQEnvParaVariable.ACC_ENV == Env.DEV) { return "http://192.168.1.110:94/image/shop/" + shopid + "/"+root; }
+		if (MQEnvParaVariable.ACC_ENV == Env.TEST) { return MQConst.outputUrlPath + "/image/shop/" + shopid + "/"+root; }
+		if (MQEnvParaVariable.ACC_ENV == Env.ONLINE) { return MQConst.outputUrlPath + "/image/shop/" + shopid + "/"+root; }
+		return "http://192.168.1.110:94/image/shop/" + shopid + "/"+root;
 	}
 
 	/**
@@ -185,8 +172,8 @@ public class MQController {
 	 * @param filename String
 	 * @return String
 	 */
-	public static final String getURLPicturePath(int shopid, String filename) {
-		return getURLPicturePath(shopid) + "/" + filename + MQConst.ACC_FileExt;
+	public static final String getURLPicturePath(int shopid,String root, String filename) {
+		return getURLPicturePath(shopid,root) + "/" + filename + MQConst.ACC_FileExt;
 	}
 
 	/**
