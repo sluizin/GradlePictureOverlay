@@ -42,6 +42,8 @@ public class QR_CODE implements InterfaceSpecialPicture {
 
 	int margin = 0;
 
+	int errorlevel = 0;
+
 	Color bgcolor = null;
 
 	ColorStyle cs = null;
@@ -77,14 +79,34 @@ public class QR_CODE implements InterfaceSpecialPicture {
 		ColorStyle cs = new ColorStyle();
 		cs.setMqLayerSpecialPicture(mqLayerSpecialPicture);
 		cs.setIndex(index);
+		this.errorlevel = mqLayerSpecialPicture.getMqpo().getRequestInt(index, "sp.qrcode.errorlevel", 0);
 		int style = mqLayerSpecialPicture.getMqpo().getRequestInt(index, "sp.qrcode.style", 0);
-		cs.setStyle(style);		
+		cs.setStyle(style);
 		String colorarray = mqLayerSpecialPicture.getMqpo().getRequest(index, "sp.qrcode.colorarray");
-		List<Color> colorList = MQUtils.getColorList(colorarray);		
+		List<Color> colorList = MQUtils.getColorList(colorarray);
 		cs.setColorList(colorList);
 		Color color = mqLayerSpecialPicture.getParameter().getColor();
 		cs.setColor(color);
 		this.cs = cs;
+	}
+
+	/**
+	 * 返回容错率
+	 * @return ErrorCorrectionLevel
+	 */
+	private ErrorCorrectionLevel getErrorCorrectionLevel() {
+		if (errorlevel < 0) return ErrorCorrectionLevel.H;
+		switch (errorlevel % 4) {
+		case 0:
+			return ErrorCorrectionLevel.L;
+		case 1:
+			return ErrorCorrectionLevel.M;
+		case 2:
+			return ErrorCorrectionLevel.Q;
+		case 3:
+			return ErrorCorrectionLevel.H;
+		}
+		return ErrorCorrectionLevel.H;
 	}
 
 	public final BufferedImage makeBufferedImage() {
@@ -92,7 +114,7 @@ public class QR_CODE implements InterfaceSpecialPicture {
 			MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
 			Map<EncodeHintType, Object> hints = new HashMap<EncodeHintType, Object>();
 			hints.put(EncodeHintType.CHARACTER_SET, "UTF-8");
-			hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H);
+			hints.put(EncodeHintType.ERROR_CORRECTION, getErrorCorrectionLevel());
 			hints.put(EncodeHintType.MARGIN, 0);
 			BitMatrix bitMatrix = multiFormatWriter.encode(url, BarcodeFormat.QR_CODE, size, size, hints);
 			//bitMatrix = updateBit(bitMatrix, margin);
