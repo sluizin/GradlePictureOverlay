@@ -143,6 +143,7 @@ public class MQController {
 		MQEnvParaVariable.testing(request);
 		String path = getPicturePath(shopid,root);
 		String saveFileName = MQPictureOverlay.save(path, request);
+		MQLogger.loggerInfo("path" + path);
 		if (saveFileName == null) rj.state = false;
 		else rj.state = true;
 		if (rj.state) {

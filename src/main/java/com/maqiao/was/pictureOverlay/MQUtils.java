@@ -6,6 +6,7 @@ package com.maqiao.was.pictureOverlay;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -132,7 +133,23 @@ public final class MQUtils {
 		}
 		return null;
 	}
-
+	/**
+	 * url图片转成byte[]
+	 * @param url URL
+	 * @return byte[]
+	 */
+	public byte[] imageUrl2byte(URL url) {
+		try {
+			BufferedImage bi=ImageIO.read(url);
+			ByteArrayOutputStream bos=new ByteArrayOutputStream();
+			ImageIO.write(bi,"PNG",bos);
+			return bos.toByteArray();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		byte[] arr=new byte[0];
+		return arr;
+	}
 	/**
 	 * 得到透明的数值
 	 * @param rgb int

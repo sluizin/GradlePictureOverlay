@@ -47,8 +47,8 @@ public class MQPictureOverlay {
 		String path = mqpo.getSaveCacheFileMerger();
 		for (int i = 0; i < listSize; i++)
 			if (point != i && (list.get(i).laterStage == 0)) {
-				MQLogger.loggerInfo("[merge]mergelist.get(" + i + "):[" + list.get(i).getMainkey() + "]GroupKey:" + list.get(i).getMqpo().getGroupKey(i));
 				MQAbstractLayer e = list.get(i);
+				MQLogger.loggerInfo("[merge]mergelist.get(" + i + "):[" + e.getMainkey() + "]GroupKey:" + e.getMqpo().getGroupKey(e.index));
 				buffImgBG = e.merge(buffImgBG);
 				/** 保存合并以后的图层 */
 				if (e.issavemerge && path != null) MQUtils.toFile(buffImgBG, path);
